@@ -377,12 +377,118 @@ object companion_object extends App{
   val kiddo = new kid
 }
 
+object variance_not_good_example extends App{
+  class fruit
+  class watermelon (var weight:Float = 0.5f )extends fruit{
+    println(this.weight)
+  }
+  val melon1 = new watermelon()
+  val melon2 = new watermelon(1f)
+  //covariance ==> in lib:List[+T]
+  val fruitlist : List[fruit] = List(melon1,melon2)
+  //contravariance
+  class weight_a_thing[-T]{
+    def print_weighting_obj(ele:T) = {
+      println(s"weighting:$ele")
+    }
+  }
+  val result1 = new weight_a_thing[watermelon]
+  result1.print_weighting_obj(melon1)
+}
 
 
+object data_inherent extends App{
+  val ele_any_val:AnyVal = 1f
+  val list_any : List[Any] = List(
+    ele_any_val,
+    "1",
+    1,
+    1d,
+    true
+  )
+  list_any.foreach(x=>println(x))
+}
+
+object casting extends App {
+  val int_val:Int = 233
+  val float_val:Float = int_val
+  val double_val:Double = 233.0
+  //val float_val2:Float = double_val
+  val string_val:String = int_val.toString
+  println(string_val)
+  val string_val_2:String = float_val.toString
+  println(string_val_2)
+}
 
 
+object generic extends App {
+  class class1[T](vari:T){
+    def printfunc = {
+      println(vari)
+    }
+  };
+  val int_class1 = new class1(3)
+  int_class1.printfunc
 
+  val float_class1 = new class1(3f)
+  float_class1.printfunc
 
+  class A{ val a =1 }
+  class B extends A{ val b = 2.33f }
+  class C extends B{ val c = 4.56d }
+  class generic[T <:B](vari:T){
+    def print_funct() = {println(vari.b)}
+  }
+  //val aa = new A
+  //val g1 = new generic(aa)
+  //g1.print_funct()
 
+  val cc = new C
+  val g2 = new generic(cc)
+  g2.print_funct()
 
+  class generic2[T >:B](vari:T){
+    def print_funct() = {println(vari.toString)}
+  }
 
+}
+
+object covariance extends App{
+  class animal{
+    val animal_name = "animal"
+  }
+  class cat extends animal{
+    val cat_name = "cat"
+  }
+  class cub[+T<:animal](vari:T){
+    def print_func = {println(vari.animal_name)}
+  }
+  val animal = new animal
+  val cub_of_animal = new cub(animal)
+  val cat = new cat
+  val cub_of_cat = new cub(cat)
+
+  val cub_of_animal2:cub[animal] = cub_of_cat
+  cub_of_animal2.print_func
+  //val cub_of_cat2:cub[cat] = cub_of_animal
+}
+//implicit 实际上就是吧写默认参数的过程提取到了函数外面
+object ImplicitParameters {
+
+  implicit val name: String = "default"  // 定义隐式变量
+  log("init")
+
+  def log(msg: String)(implicit name: String): Unit = println(s"[$name] $msg")
+
+  def process(): Unit = {
+    implicit val name: String = "process"
+    log("doing something")
+  }
+
+  def main(args: Array[String]): Unit = {
+    implicit val name: String = "main"
+    log("start")
+    process()
+    log("end")("custom name")
+  }
+}
